@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group 'org.example'
@@ -20,3 +21,9 @@ dependencies {
 test {
     useTestNG()
 }
+
+run {
+    standardInput = System.in
+}
+
+mainClassName = 'ConnectToDB'
