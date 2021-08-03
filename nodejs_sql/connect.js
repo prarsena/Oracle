@@ -10,7 +10,7 @@ let app = express();
 const httpPort = 7000;
 
 try {
-    oracledb.initOracleClient({ libDir: 'D:\\Downloads\\instantclient-basic-windows.x64-19.11.0.0.0dbru\\instantclient_19_11' });
+    oracledb.initOracleClient({ libDir: creds.INSTANT_CLIENT_LOCATION });
 } catch (err) {
     console.error('Whoops!');
     console.error(err);
