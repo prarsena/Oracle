@@ -26,10 +26,10 @@ Two files are missing from each of the projects: creds.js, and ConnectionInfo.ja
 - [http://oracle.github.io/node-oracledb/](http://oracle.github.io/node-oracledb/)
 - [https://www.oracle.com/database/technologies/instant-client.html](https://www.oracle.com/database/technologies/instant-client.html)
 
-Set the INSTANT_CLIENT_LOCATION variable to the path of that install, for example:
+Set the `INSTANT_CLIENT_LOCATION` variable to the path of that install, for example:
 
-- D:\\Downloads\\instantclient-basic-windows.x64-19.11.0.0.0dbru\\instantclient_19_11
-- /home/me/Downloads/instantclient_21_11
+- `D:\\Downloads\\instantclient-basic-windows.x64-19.11.0.0.0dbru\\instantclient_19_11`
+- `/home/me/Downloads/instantclient_21_11`
 
 If you are running the code on Linux, you have to do an extra step to add Instant Client to the run-time link path:
 For example, if the Basic package unzipped to /opt/oracle/instantclient_19_11, then run the following using sudo or as the root user:
