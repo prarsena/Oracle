@@ -3,7 +3,7 @@
 There are two Oracle DB Client projects in this repository: one Java/Gradle based, and the other is a Node JS site.
 Two files are missing from each of the projects: creds.js, and ConnectionInfo.java.
 
-# # What are these projects?
+## What are these projects?
 
 These projects interact with an Oracle database. Generally, they display the information contained within a database table using `SELECT` statements.
 
