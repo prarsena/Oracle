@@ -60,3 +60,8 @@ The file should contain this information:
           return password;
       }
     }
+
+Once that file is in place, build the gradle project using your IDE, or on the command line:
+
+1. Navigate to the root directory of the project.
+2. type `gradle run`
