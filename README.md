@@ -6,15 +6,14 @@ Two files are missing from each of the projects: creds.js, and ConnectionInfo.ja
 # nodejs_sql
 
 1.  To build this project, clone this repo.
-2.  Navigate to root dir of project: `npm i`
-3.  Create a file called `creds.js` in the root of the nodejs_proj directory.
-4.  Add the with the following contents to `creds.js`:
-
-        const username = "YOUR_ORACLE_DB_USERNAME"
-        const pw = "YOUR_ORACLE_DB_PASSWORD"
-        const connectionstring = "YOUR_ORACLE_DB_CONNECTIONSTRING"
-        const INSTANT_CLIENT_LOCATION = "location/of/instantclient_xx_xx"
-        module.exports = { username, pw, connectionstring, INSTANT_CLIENT_LOCATION }
+2.  Navigate to root dir of project and run: `npm i`
+3.  Create a file called `creds.js` in the root of the nodejs_sql directory.
+4.  Add the following contents to `creds.js`:
+    const username = "YOUR_ORACLE_DB_USERNAME"
+    const pw = "YOUR_ORACLE_DB_PASSWORD"
+    const connectionstring = "YOUR_ORACLE_DB_CONNECTIONSTRING"
+    const INSTANT_CLIENT_LOCATION = "location/of/instantclient_xx_xx"
+    module.exports = { username, pw, connectionstring, INSTANT_CLIENT_LOCATION }
 
 > note: The connectionString can take many formats but I use something like this:
 
