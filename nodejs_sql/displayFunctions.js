@@ -131,13 +131,19 @@ function displayForm(response, result) {
     response.write(style.navbar);
     response.write("<body>");
     response.write(style.navlist);
+    response.write(`<h1>Select table to add entry: </h1>`)
+
     response.write(`<label for="tables">Select a ${result.metaData[0].name}: </label>`)
     response.write(`<select name="tables" id="tables">`);
     for (let row = 0; row < result.rows.length; row++) {
         response.write(`<option value="${result.rows[row]['TABLE_NAME']}">${result.rows[row]['TABLE_NAME']}</option>`);
     }
     response.write("</select>");
+
+    response.write(`<h3><span class="note">Note</span>: The (above) dropdown select doesn't work yet.</h3> 
+    <h2> Select a table from the links below: </h2>`)
     response.write(`<div id="content">`)
+
     for (let row = 0; row < result.rows.length; row++) {
         response.write(`<p><a href="/form/${result.rows[row]['TABLE_NAME']}">${result.rows[row]['TABLE_NAME']}</a></p>`);
     }
@@ -146,41 +152,34 @@ function displayForm(response, result) {
     response.end();
 }
 
-function displayTableForm(response, tablename, result) {
+function displayTableForm(response, tablename, result, highestUniqueID) {
     response.writeHead(200, { "Content-Type": "text/html" });
 
     response.write(style.navbar);
     response.write("<body>");
     response.write(style.navlist);
     response.write(`<h1>Add ${tablename} entry</h1>`);
-    /*
-    response.write(`<label for="tables">Select a ${result.metaData[0].name}: </label>`)
-    response.write(`<select name="tables" id="tables">`);
-    for (let row = 0; row < result.rows.length; row++) {
-        response.write(`<option value="${result.rows[row]['TABLE_NAME']}">${result.rows[row]['TABLE_NAME']}</option>`);
-    }
-    response.write("</select>");
-    */
+
     response.write(`<div><form action="somepage.js"`)
     let tablelength = result.rows.length + 1;
+    // If the table uses something other than 1,2,3 for its unique IDs,
+    // set the ID to the highest existant value + 1;
+    if (highestUniqueID > tablelength) {
+        tablelength = highestUniqueID + 1;
+    }
     for (col = 0; col < result.metaData.length; col++) {
-
         if (col == 0) {
-
             response.write(`<label for="${result.metaData[col].name}">${result.metaData[col].name}: </label><br>`)
             response.write(`<input type="text" id="${result.metaData[col].name}" name="${result.metaData[col].name}" value="${tablelength}"><br>`)
         }
         else {
-
             response.write(`<label for="${result.metaData[col].name}">${result.metaData[col].name}: </label><br>`)
             response.write(`<input type="text" id="${result.metaData[col].name}" name="${result.metaData[col].name}"><br>`)
         }
-
-        console.log(result.metaData[col].name)
     }
     response.write(`<input type="submit" value="Submit"></form>`)
     response.write(`</div>`)
-    response.write(`<h2>Examples include:</h2>`)
+    response.write(`<h2>Examples of ${tablename} entries include:</h2>`)
     // Give examples below with a few existing rows. 
     response.write("<table>");
     response.write("<tr>");

@@ -186,14 +186,27 @@ async function handleTableForm(request, response) {
     try {
         // Checkout a connection from the default pool
         connection = await oracledb.getConnection();
-        const result = await connection.execute(
-            `SELECT * FROM ${tablename}`
+        const getIDColumnName = await connection.execute(
+            `SELECT *
+           FROM ${tablename}`
         );
+
+        console.log(getIDColumnName.metaData[0].name)
+        tableSpecificID = getIDColumnName.metaData[0].name;
+
+        const result = await connection.execute(
+            `SELECT * FROM ${tablename}
+            ORDER BY ${tableSpecificID}`
+        );
+
+        let lastId = result.rows[result.rows.length - 1];
+        let highestUniqueID = lastId[tableSpecificID];
 
         display.displayTableForm(
             response,
             tablename,
-            result);
+            result,
+            highestUniqueID);
 
     } catch (err) {
         handleError(response, "handleRequest() error", err);

@@ -95,6 +95,15 @@ div {
   background-color: #f2f2f2;
   padding: 20px;
 }
+
+#content {
+  margin: auto;
+  width: 50%;
+}
+
+.note {
+  background-color: yellow;
+}
 </style>`
 
 let navlist = `<ul class="topnav">
