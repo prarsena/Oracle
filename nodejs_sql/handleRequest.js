@@ -1,39 +1,31 @@
 const oracledb = require('oracledb');
-const httpPort = 7000;
+const display = require('./displayFunctions');
 
 async function handleIndividualRequest(request, response) {
     const urlparts = request.url.split("/");
-    const id = urlparts[2];
+    const tablename = urlparts[2];
+    const id = urlparts[3];
+    let connection;
 
-    if (id == 'favicon.ico') {  // ignore requests for the icon
-        return;
-    }
-
-    if (id != parseInt(id)) {
-        handleError(
-            response,
-            'URL path "' + id + '" is not an integer.  Try http://localhost:' + httpPort + '/3',
-            null
+    try {
+        connection = await oracledb.getConnection();
+        const getIDColumnName = await connection.execute(
+            `SELECT *
+           FROM ${tablename}`
         );
 
-        return;
-    }
-
-    let connection;
-    try {
-        // Checkout a connection from the default pool
-        connection = await oracledb.getConnection();
+        console.log(getIDColumnName.metaData[0].name)
+        tableSpecificID = getIDColumnName.metaData[0].name;
 
         const result = await connection.execute(
-            `SELECT *
-           FROM employee
-           WHERE employee_id = :idbv`,
-            [id] // bind variable value
+            `SELECT * 
+            FROM ${tablename}
+            WHERE ${tableSpecificID} = :idbv`, [id]
         );
 
-        displayResults(
+        display.dispR(
             response,
-            "Employee Demonstration",
+            `${tablename} Demonstration`,
             "Example using node-oracledb driver",
             result,
             id);
@@ -65,7 +57,7 @@ async function handleRequest(request, response) {
            FROM employee`
         );
 
-        displayResults(
+        display.displayResults(
             response,
             "Employee Demonstration",
             "Example using node-oracledb driver",
@@ -98,9 +90,9 @@ async function getDBTables(request, response) {
             `SELECT table_name FROM user_tables`
         );
 
-        displayResultLinks(
+        display.displayResultLinks(
             response,
-            "Employee Demonstration",
+            "Database Demonstration",
             "Example using node-oracledb driver",
             result,
             id);
@@ -119,7 +111,6 @@ async function getDBTables(request, response) {
     }
 }
 
-
 async function getTableData(request, response) {
     const urlparts = request.url.split("/");
     const tablename = urlparts[2];
@@ -127,14 +118,22 @@ async function getTableData(request, response) {
     try {
         // Checkout a connection from the default pool
         connection = await oracledb.getConnection();
-
-        const result = await connection.execute(
-            `SELECT * FROM ${tablename}`
+        const getIDColumnName = await connection.execute(
+            `SELECT *
+           FROM ${tablename}`
         );
 
-        displayResults(
+        console.log(getIDColumnName.metaData[0].name)
+        tableSpecificID = getIDColumnName.metaData[0].name;
+
+        const result = await connection.execute(
+            `SELECT * FROM ${tablename}
+            ORDER BY ${tableSpecificID}`
+        );
+
+        display.dispR(
             response,
-            "Employee Demonstration",
+            `${tablename} Demonstration`,
             "Example using node-oracledb driver",
             result,
             tablename);
@@ -153,100 +152,71 @@ async function getTableData(request, response) {
     }
 }
 
-function displayResultLinks(response, title, caption, result, id) {
+async function handleForm(request, response) {
+    let connection;
+    try {
+        // Checkout a connection from the default pool
+        connection = await oracledb.getConnection();
+        const result = await connection.execute(
+            `SELECT table_name FROM user_tables`
+        );
 
-    response.writeHead(200, { "Content-Type": "text/html" });
-    response.write("<!DOCTYPE html>");
-    response.write("<html>");
-    response.write("<head>");
-    response.write("<style>" +
-        "body {background:#FFFFFF;color:#000000;font-family:Arial,sans-serif;margin:40px;padding:10px;font-size:12px;text-align:center;}" +
-        "h1 {margin:0px;margin-bottom:12px;background:#FF0000;text-align:center;color:#FFFFFF;font-size:28px;}" +
-        "table {border-collapse: collapse;   margin-left:auto; margin-right:auto;}" +
-        "td, th {padding:8px;border-style:solid}" +
-        "</style>\n");
-    response.write("<title>" + caption + "</title>");
-    response.write("</head>");
-    response.write("<body>");
-    response.write("<h1>" + title + "</h1>");
+        display.displayForm(
+            response,
+            result);
 
-    response.write("<h2>" + "Details for employee " + id + "</h2>");
-
-    response.write("<table>");
-    //console.log(result)
-    // Column Titles
-    response.write("<tr>");
-    for (let col = 0; col < result.metaData.length; col++) {
-        response.write("<th>" + result.metaData[col].name + "</th>");
-    }
-    response.write("</tr>");
-    console.log(result.rows.length)
-    // Rows
-    for (let row = 0; row < result.rows.length; row++) {
-        response.write("<tr>");
-
-        for (let col = 0; col < result.metaData.length; col++) {
-            //console.log(result.rows[row])
-            let object = Object.values(result.rows[row])
-            //console.log(object[col])
-            response.write(`<td><a href="./tables/${object[col]}"> + ${object[col]} + </a></td>`);
+    } catch (err) {
+        handleError(response, "handleRequest() error", err);
+    } finally {
+        if (connection) {
+            try {
+                // Release the connection back to the connection pool
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
         }
-        response.write("</tr>");
     }
-    response.write("</table>");
-
-    response.write("</body>\n</html>");
-    response.end();
-
 }
 
+async function handleTableForm(request, response) {
+    const urlparts = request.url.split("/");
+    const tablename = urlparts[2];
+    let connection;
+    try {
+        // Checkout a connection from the default pool
+        connection = await oracledb.getConnection();
+        const result = await connection.execute(
+            `SELECT * FROM ${tablename}`
+        );
 
-// Display query results
-function displayResults(response, title, caption, result, id) {
+        display.displayTableForm(
+            response,
+            tablename,
+            result);
 
-    response.writeHead(200, { "Content-Type": "text/html" });
-    response.write("<!DOCTYPE html>");
-    response.write("<html>");
-    response.write("<head>");
-    response.write("<style>" +
-        "body {background:#FFFFFF;color:#000000;font-family:Arial,sans-serif;margin:40px;padding:10px;font-size:12px;text-align:center;}" +
-        "h1 {margin:0px;margin-bottom:12px;background:#FF0000;text-align:center;color:#FFFFFF;font-size:28px;}" +
-        "table {border-collapse: collapse;   margin-left:auto; margin-right:auto;}" +
-        "td, th {padding:8px;border-style:solid}" +
-        "</style>\n");
-    response.write("<title>" + caption + "</title>");
-    response.write("</head>");
-    response.write("<body>");
-    response.write("<h1>" + title + "</h1>");
-
-    response.write("<h2>" + "Details for employee " + id + "</h2>");
-
-    response.write("<table>");
-    //console.log(result)
-    // Column Titles
-    response.write("<tr>");
-    for (let col = 0; col < result.metaData.length; col++) {
-        response.write("<th>" + result.metaData[col].name + "</th>");
-    }
-    response.write("</tr>");
-    console.log(result.rows.length)
-    // Rows
-    for (let row = 0; row < result.rows.length; row++) {
-        response.write("<tr>");
-
-        for (let col = 0; col < result.metaData.length; col++) {
-            //console.log(result.rows[row])
-            let object = Object.values(result.rows[row])
-            //console.log(object[col])
-            response.write("<td>" + object[col] + "</td>");
+    } catch (err) {
+        handleError(response, "handleRequest() error", err);
+    } finally {
+        if (connection) {
+            try {
+                // Release the connection back to the connection pool
+                await connection.close();
+            } catch (err) {
+                console.error(err);
+            }
         }
-        response.write("</tr>");
     }
-    response.write("</table>");
+}
 
-    response.write("</body>\n</html>");
-    response.end();
+async function handleAbout(request, response) {
+    try {
 
+        display.displayAbout(response);
+
+    } catch (err) {
+        handleError(response, "handleRequest() error", err);
+    }
 }
 
 // Report an error
@@ -260,4 +230,4 @@ function handleError(response, text, err) {
     response.end();
 }
 
-module.exports = { handleError, handleRequest, handleIndividualRequest, displayResults, getDBTables, getTableData };
+module.exports = { handleError, handleRequest, handleIndividualRequest, getDBTables, getTableData, handleForm, handleTableForm, handleAbout };
