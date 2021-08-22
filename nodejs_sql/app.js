@@ -3,7 +3,6 @@
 const express = require('express');
 const oracledb = require('oracledb');
 const creds = require('./creds');
-const handle = require('./handleRequest');
 let app = express();
 
 const httpPort = 7000;
@@ -41,37 +40,12 @@ async function run() {
             // stmtCacheSize: 30, // number of statements that are cached in the statement cache of each connection
             // enableStatistics: false // record pool usage for oracledb.getPool().getStatistics() and logStatistics()
         });
+        app.use(express.json())
+        app.use(require('./routes/endpoints'))
 
         app.listen(httpPort, function () {
             console.log(`Server running on Port ${httpPort}.. `)
         })
-        app.get('/', (req, res) => {
-            handle.getDBTables(req, res);
-        })
-        app.get('/tables', (req, res) => {
-            handle.getDBTables(req, res)
-        })
-
-        app.get('/tables/:tablename', (req, res) => {
-            handle.getTableData(req, res)
-        })
-
-        app.get('/tables/:tablename/:id', (req, res) => {
-            handle.handleIndividualRequest(req, res);
-        })
-
-        app.get('/form', (req, res) => {
-            handle.handleForm(req, res);
-        })
-
-        app.get('/form/:tablename', (req, res) => {
-            handle.handleTableForm(req, res);
-        })
-
-        app.get('/about', (req, res) => {
-            handle.handleAbout(req, res);
-        })
-
     } catch (err) {
         console.error("init() error: " + err.message);
     }
