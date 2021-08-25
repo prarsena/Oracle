@@ -160,7 +160,7 @@ function displayTableForm(response, tablename, result, highestUniqueID) {
     response.write(style.navlist);
     response.write(`<h1>Add ${tablename} entry</h1>`);
 
-    response.write(`<div><form action="somepage.js"`)
+    response.write(`<div><form method="POST" action="/form/${tablename}/somepage"`)
     let tablelength = result.rows.length + 1;
     // If the table uses something other than 1,2,3 for its unique IDs,
     // set the ID to the highest existant value + 1;

@@ -1,5 +1,3 @@
-// This example uses Node 8's async/await syntax.
-// more info https://github.com/oracle/node-oracledb/blob/main/examples/webapp.js
 const express = require('express');
 const oracledb = require('oracledb');
 const creds = require('./creds');
@@ -41,11 +39,16 @@ async function run() {
             // enableStatistics: false // record pool usage for oracledb.getPool().getStatistics() and logStatistics()
         });
         app.use(express.json())
-        app.use(require('./routes/endpoints'))
+        app.use(express.urlencoded({
+            extended: true
+        }))
+
 
         app.listen(httpPort, function () {
             console.log(`Server running on Port ${httpPort}.. `)
         })
+
+        app.use(require('./routes/endpoints'))
     } catch (err) {
         console.error("init() error: " + err.message);
     }
